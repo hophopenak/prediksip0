@@ -22,7 +22,7 @@ class Winsorizer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = np.asarray(X, dtype=float)
         self.low_ = np.quantile(X, self.lower_q, axis=0)
-        self.up_ = np.quantile(X, self.upper_q, axis=0)
+        self.up_  = np.quantile(X, self.upper_q, axis=0)
         return self
 
     def transform(self, X):
@@ -33,9 +33,9 @@ class Winsorizer(BaseEstimator, TransformerMixin):
 # =========================
 # KONFIGURASI FILE
 # =========================
-DATA_PATH = "dataprediksi.xlsx"
+DATA_PATH  = "dataprediksi.xlsx"
 MODEL_PATH = "model_svr_pipeline_outlier_lag.pkl"
-PRED_PATH = "Prediksi_P0_2025_2030_SVR_Outlier_Lag.xlsx"
+PRED_PATH  = "Prediksi_P0_2025_2030_SVR_Outlier_Lag.xlsx"
 
 FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH", "P0_lag1"]
 BASE_FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH"]
@@ -51,6 +51,10 @@ def inject_css():
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         div[data-testid="stToolbar"] { display: none; }
+
+        /* ===== Hilangkan tombol ">" collapse sidebar (pojok kiri atas) ===== */
+        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
+        div[data-testid="collapsedControl"] { display: none !important; }
 
         /* ===== Background ===== */
         .stApp { background: linear-gradient(90deg, #ffd9a8 0%, #ffb0e6 100%) !important; }
@@ -80,7 +84,7 @@ def inject_css():
         .title-center { text-align: center; }
         </style>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
 
 
@@ -130,12 +134,8 @@ def compute_permutation_importance_per_kab(df_with_lag: pd.DataFrame, kab: str, 
     y_train = train["P0"].astype(float)
 
     result = permutation_importance(
-        _model,
-        X_train,
-        y_train,
-        n_repeats=15,
-        random_state=42,
-        scoring="r2",
+        _model, X_train, y_train,
+        n_repeats=15, random_state=42, scoring="r2"
     )
 
     imp = (
@@ -184,11 +184,7 @@ def load_or_build_future(df_raw: pd.DataFrame, _model, pred_path: str) -> pd.Dat
 # =========================
 # APP
 # =========================
-st.set_page_config(
-    page_title="Dashboard Prediksi Kemiskinan Sumatera Barat",
-    layout="wide",
-    initial_sidebar_state="expanded",  # penting: sidebar default terbuka di Streamlit Cloud
-)
+st.set_page_config(page_title="Dashboard Prediksi Kemiskinan Sumatera Barat", layout="wide")
 inject_css()
 
 if not os.path.exists(DATA_PATH):
@@ -220,7 +216,7 @@ with st.sidebar:
             f"<div class='metric-title'>MAE</div>"
             f"<div class='metric-value'>{metrics['MAE']:.4f}</div>"
             f"</div>",
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
     with c2:
         st.markdown(
@@ -228,7 +224,7 @@ with st.sidebar:
             f"<div class='metric-title'>RMSE</div>"
             f"<div class='metric-value'>{metrics['RMSE']:.4f}</div>"
             f"</div>",
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
 
     st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
@@ -237,14 +233,14 @@ with st.sidebar:
         f"<div class='metric-title'>R²</div>"
         f"<div class='metric-value'>{metrics['R2']:.4f}</div>"
         f"</div>",
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
 
 st.markdown(
     "<div class='card title-center'>"
     "<div style='font-size:26px;font-weight:900;color:#6a00ff;'>"
     "Dashboard Prediksi Kemiskinan Provinsi Sumatera Barat</div></div>",
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
 
@@ -274,18 +270,20 @@ trend_df = pd.concat([sub_hist[["Tahun", "P0", "Jenis"]], sub_future_plot], axis
 left, right = st.columns([1.25, 1])
 
 with left:
+    # Judul grafik rata tengah
     st.markdown(
         f"<div class='card' style='text-align:center;'><b>Tren Perubahan P₀ - {selected_kab}</b></div>",
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
     fig_trend = px.line(trend_df, x="Tahun", y="P0", color="Jenis", markers=True)
     fig_trend.update_layout(height=320, margin=dict(l=10, r=10, t=40, b=10), legend_title_text="")
     st.plotly_chart(fig_trend, use_container_width=True)
 
 with right:
+    # Judul grafik rata tengah
     st.markdown(
         "<div class='card' style='text-align:center;'><b>Variabel yang Berpengaruh (Permutation Importance)</b></div>",
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
 
     hide_lag = st.checkbox("Sembunyikan P0_lag1 (agar variabel lain terlihat)", value=True)
@@ -298,9 +296,10 @@ with right:
     if hide_lag:
         st.caption("Catatan: P0_lag1 biasanya dominan karena kemiskinan berubah perlahan dari tahun ke tahun.")
 
+# Judul tabel rata tengah (opsional) -> kalau mau tetap kiri, hapus style text-align
 st.markdown(
     "<div class='card' style='text-align:center;'><b>Prediksi P₀ Tahun 2025 - 2030</b></div>",
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
 table_df = sub_future[["Tahun", "Prediksi_P0"]].copy()
@@ -326,5 +325,5 @@ st.markdown(
         </table>
     </div>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
