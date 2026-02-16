@@ -46,47 +46,183 @@ def inject_css():
     st.markdown(
         """
         <style>
-        /* ===== Hilangkan header putih ===== */
+        /* =========================
+           HIDE DEFAULT STREAMLIT UI
+        ========================= */
         header[data-testid="stHeader"] { display: none; }
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         div[data-testid="stToolbar"] { display: none; }
 
-        /* ===== Hilangkan tombol ">" collapse sidebar (pojok kiri atas) ===== */
+        /* Hilangkan tombol ">" collapse sidebar */
         button[data-testid="stSidebarCollapseButton"] { display: none !important; }
         div[data-testid="collapsedControl"] { display: none !important; }
 
-        /* ===== Background ===== */
-        .stApp { background: linear-gradient(90deg, #ffd9a8 0%, #ffb0e6 100%) !important; }
-        .block-container { padding-top: 0rem !important; }
+        /* =========================
+           PINK SOFT + HIGH READABILITY
+        ========================= */
+        :root{
+            --bg1:#fff1f7;      /* very soft pink */
+            --bg2:#ffe0f0;      /* soft pink */
+            --bg3:#f7efff;      /* hint lavender */
 
-        /* ===== Card ===== */
-        .card {
-            background: rgba(255,255,255,0.55);
-            border-radius: 14px;
-            padding: 14px 16px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            border: 1px solid rgba(255,255,255,0.55);
+            --text:#111827;     /* hampir hitam (jelas di screenshot) */
+            --text2:#1f2937;    /* secondary */
+            --muted:#374151;    /* caption, label kecil */
+
+            --card: rgba(255,255,255,0.96);
+            --border: rgba(236, 149, 196, 0.35);
+            --shadow: 0 10px 22px rgba(0,0,0,0.08);
+
+            --sidebar: rgba(255, 235, 246, 0.92);
         }
 
-        /* ===== Sidebar ===== */
-        section[data-testid="stSidebar"] {
-            background: rgba(255,255,255,0.55);
-            border-right: 1px solid rgba(255,255,255,0.65);
+        .stApp{
+            background: radial-gradient(circle at 20% 10%, var(--bg1) 0%, var(--bg2) 50%, var(--bg3) 100%) !important;
+            color: var(--text) !important;
         }
 
-        /* ===== Rata tengah khusus card metric ===== */
-        .metric-card { text-align: center; }
-        .metric-title { font-size: 12px; color: #444; }
-        .metric-value { font-size: 22px; font-weight: 800; }
+        /* ruang atas */
+        .block-container{ padding-top: 0rem !important; }
 
-        /* ===== Judul rata tengah ===== */
-        .title-center { text-align: center; }
+        /* =========================
+           GLOBAL FONT (lebih besar)
+        ========================= */
+        html, body, [class*="css"]{
+            color: var(--text) !important;
+            font-size: 16px !important;    /* naik dari default */
+            font-weight: 600 !important;   /* biar tegas di screenshot */
+        }
+
+        /* =========================
+           HEADINGS / TITLES
+        ========================= */
+        h1, h2, h3, h4{
+            color: var(--text) !important;
+            font-weight: 900 !important;
+        }
+
+        .title-center{
+            text-align: center;
+        }
+
+        /* =========================
+           CARD
+        ========================= */
+        .card{
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px 18px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            color: var(--text) !important;
+        }
+
+        /* Judul yang ada di dalam card (b, strong) */
+        .card b, .card strong{
+            color: var(--text) !important;
+            font-weight: 900 !important;
+            font-size: 16px !important;
+        }
+
+        /* =========================
+           SIDEBAR (lebih jelas)
+        ========================= */
+        section[data-testid="stSidebar"]{
+            background: var(--sidebar) !important;
+            border-right: 1px solid rgba(236, 149, 196, 0.35);
+        }
+        section[data-testid="stSidebar"] *{
+            color: var(--text) !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+        }
+
+        /* =========================
+           LABEL INPUT (Pilih Kabupaten/Kota)
+        ========================= */
+        label{
+            color: var(--text) !important;
+            font-weight: 800 !important;
+            font-size: 15px !important;
+        }
+
+        /* Selectbox box */
+        div[data-testid="stSelectbox"] > div{
+            background: rgba(255,255,255,0.98) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(236, 149, 196, 0.45) !important;
+        }
+
+        /* =========================
+           METRIC CARD (angka lebih besar)
+        ========================= */
+        .metric-card{
+            text-align: center;
+        }
+        .metric-title{
+            font-size: 13px !important;
+            color: var(--text2) !important;
+            font-weight: 800 !important;
+            letter-spacing: .2px;
+        }
+        .metric-value{
+            font-size: 26px !important;   /* lebih besar */
+            font-weight: 900 !important;
+            color: var(--text) !important;
+        }
+
+        /* =========================
+           CHECKBOX (lebih jelas)
+        ========================= */
+        div[data-testid="stCheckbox"]{
+            background: rgba(255,255,255,0.78);
+            border: 1px solid rgba(236, 149, 196, 0.35);
+            border-radius: 12px;
+            padding: 8px 12px;
+        }
+
+        /* =========================
+           CAPTION / CATATAN
+        ========================= */
+        .stCaption, .stMarkdown p{
+            color: var(--muted) !important;
+            font-size: 14px !important;
+            font-weight: 650 !important;
+        }
+
+        /* =========================
+           TABLE (lebih tegas untuk screenshot)
+        ========================= */
+        table{
+            font-size: 15px !important;
+            color: var(--text) !important;
+        }
+        th{
+            font-size: 15px !important;
+            font-weight: 900 !important;
+            color: var(--text) !important;
+            border-bottom: 2px solid rgba(0,0,0,0.18) !important;
+        }
+        td{
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            color: var(--text) !important;
+        }
+
+        /* =========================
+           PLOTLY CHART FONT (penting)
+           -> memperbesar teks axis/legend Plotly di screenshot
+        ========================= */
+        .js-plotly-plot text{
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            fill: #111827 !important;
+        }
         </style>
         """,
         unsafe_allow_html=True
     )
-
 
 @st.cache_data(show_spinner=False)
 def load_data(path: str) -> pd.DataFrame:
@@ -202,12 +338,17 @@ metrics = evaluate_on_2024(df_lag, model)
 future_df = load_or_build_future(df_raw, model, PRED_PATH)
 
 with st.sidebar:
-    st.markdown("## ℹ️ Informasi")
-    st.write("- Prediksi P0 2025–2030\n- Tren per kabupaten/kota\n- Variabel yang paling mempengaruhi")
+    st.markdown("""
+### 📌 Informasi
+
+- 📅 **Prediksi P0 Tahun 2025–2030**
+- 📈 **Tren per Kabupaten/Kota**
+- 🧠 **Variabel yang Paling Mempengaruhi**
+""")
 
     st.markdown("---")
     st.markdown("## 📊 Akurasi Model")
-    st.caption("SVR Regression")
+    st.caption("🔎 SVR Regression")
 
     c1, c2 = st.columns(2)
     with c1:
@@ -239,7 +380,7 @@ with st.sidebar:
 st.markdown(
     "<div class='card title-center'>"
     "<div style='font-size:26px;font-weight:900;color:#6a00ff;'>"
-    "Dashboard Prediksi Kemiskinan Provinsi Sumatera Barat</div></div>",
+    "📊 Dashboard Prediksi Kemiskinan Provinsi Sumatera Barat</div></div>",
     unsafe_allow_html=True
 )
 st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
@@ -272,8 +413,8 @@ left, right = st.columns([1.25, 1])
 with left:
     # Judul grafik rata tengah
     st.markdown(
-        f"<div class='card' style='text-align:center;'><b>Tren Perubahan P₀ - {selected_kab}</b></div>",
-        unsafe_allow_html=True
+    f"<div class='card' style='text-align:center;'><b>📈 Tren Perubahan P₀ - {selected_kab}</b></div>",
+    unsafe_allow_html=True
     )
     fig_trend = px.line(trend_df, x="Tahun", y="P0", color="Jenis", markers=True)
     fig_trend.update_layout(height=320, margin=dict(l=10, r=10, t=40, b=10), legend_title_text="")
@@ -282,10 +423,9 @@ with left:
 with right:
     # Judul grafik rata tengah
     st.markdown(
-        "<div class='card' style='text-align:center;'><b>Variabel yang Berpengaruh (Permutation Importance)</b></div>",
-        unsafe_allow_html=True
+    "<div class='card' style='text-align:center;'><b>🧠 Variabel yang Berpengaruh (Permutation Importance)</b></div>",
+    unsafe_allow_html=True
     )
-
     hide_lag = st.checkbox("Sembunyikan P0_lag1 (agar variabel lain terlihat)", value=True)
     plot_df = importance_wo_lag if hide_lag else importance_df
 
@@ -298,7 +438,7 @@ with right:
 
 # Judul tabel rata tengah (opsional) -> kalau mau tetap kiri, hapus style text-align
 st.markdown(
-    "<div class='card' style='text-align:center;'><b>Prediksi P₀ Tahun 2025 - 2030</b></div>",
+    "<div class='card' style='text-align:center;'><b>📅 Prediksi P₀ Tahun 2025 - 2030</b></div>",
     unsafe_allow_html=True
 )
 
