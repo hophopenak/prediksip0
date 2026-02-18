@@ -316,11 +316,10 @@ def load_or_build_future(df_raw: pd.DataFrame, _model, pred_path: str) -> pd.Dat
         return pd.read_excel(pred_path)
     return build_future_predictions_if_missing(df_raw, _model)
 
-
 # =========================
 # APP
 # =========================
-st.set_page_config(page_title="Dashboard Prediksi Kemiskinan Sumatera Barat", layout="wide")
+st.set_page_config(page_title="Dashboard Prediksi Tingkat Kemiskinan Sumatera Barat", layout="wide")
 inject_css()
 
 if not os.path.exists(DATA_PATH):
@@ -341,7 +340,7 @@ with st.sidebar:
     st.markdown("""
 ### 📌 Informasi
 
-- 📅 **Prediksi P0 Tahun 2025–2030**
+- 📅 **Prediksi Tingkat Kemiskinan Tahun 2025–2030**
 - 📈 **Tren per Kabupaten/Kota**
 - 🧠 **Variabel yang Paling Mempengaruhi**
 """)
@@ -380,7 +379,7 @@ with st.sidebar:
 st.markdown(
     "<div class='card title-center'>"
     "<div style='font-size:26px;font-weight:900;color:#6a00ff;'>"
-    "📊 Dashboard Prediksi Kemiskinan Provinsi Sumatera Barat</div></div>",
+    "📊 Dashboard Prediksi Tingkat Kemiskinan Provinsi Sumatera Barat</div></div>",
     unsafe_allow_html=True
 )
 st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
@@ -413,7 +412,7 @@ left, right = st.columns([1.25, 1])
 with left:
     # Judul grafik rata tengah
     st.markdown(
-    f"<div class='card' style='text-align:center;'><b>📈 Tren Perubahan P₀ - {selected_kab}</b></div>",
+    f"<div class='card' style='text-align:center;'><b>📈 Tren Perubahan Tingkat Kemiskinan - {selected_kab}</b></div>",
     unsafe_allow_html=True
     )
     fig_trend = px.line(trend_df, x="Tahun", y="P0", color="Jenis", markers=True)
@@ -438,7 +437,7 @@ with right:
 
 # Judul tabel rata tengah (opsional) -> kalau mau tetap kiri, hapus style text-align
 st.markdown(
-    "<div class='card' style='text-align:center;'><b>📅 Prediksi P₀ Tahun 2025 - 2030</b></div>",
+    "<div class='card' style='text-align:center;'><b>📅 Prediksi Tingkat Kemiskinan Tahun 2025 - 2030</b></div>",
     unsafe_allow_html=True
 )
 
@@ -467,3 +466,60 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# =========================================================
+# (TAMBAHAN) PREDIKSI P0 PROVINSI SUMATERA BARAT 2025–2030
+# Metode: Rata-rata sederhana seluruh kab/kota per tahun
+# =========================================================
+
+st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+st.markdown(
+    "<div class='card' style='text-align:center;'><b>🏛️ Prediksi Tingkat Kemiskinan Provinsi Sumatera Barat (2025 - 2030)</b></div>",
+    unsafe_allow_html=True
+)
+
+# 1) Hitung prediksi provinsi (mean per tahun dari semua kab/kota)
+prov_df = (
+    future_df.groupby("Tahun", as_index=False)["Prediksi_P0"]
+            .mean()
+            .rename(columns={"Prediksi_P0": "Prediksi_P0_Prov"})
+)
+
+prov_df["Tahun"] = prov_df["Tahun"].astype(int)
+prov_df["Prediksi_P0_Prov"] = prov_df["Prediksi_P0_Prov"].astype(float)
+
+# 2) Grafik tren provinsi
+fig_prov = px.line(
+    prov_df,
+    x="Tahun",
+    y="Prediksi_P0_Prov",
+    markers=True
+)
+
+fig_prov.update_layout(
+    height=330,
+    margin=dict(l=10, r=10, t=55, b=10),
+    xaxis_title="Tahun",
+    yaxis_title="Prediksi Tingkat Kemiskinan Provinsi (%)",
+    legend_title_text="",
+    title=dict(
+        text="📈 Tren Prediksi Tingkat Kemiskinan Provinsi Sumatera Barat 2025–2030 (Rata-rata Kab/Kota)",
+        x=0.5
+    )
+)
+
+st.plotly_chart(fig_prov, use_container_width=True)
+
+# 3) Tampilkan tabel ringkas (dibungkus card agar rapi)
+prov_table = prov_df.copy()
+prov_table["Prediksi_P0_Prov"] = prov_table["Prediksi_P0_Prov"].round(4)
+
+st.markdown(
+    "<div class='card' style='text-align:center;'><b>📋 Tabel Prediksi Tingkat Kemiskinan Provinsi Sumatera Barat</b></div>",
+    unsafe_allow_html=True
+)
+
+st.dataframe(prov_table, use_container_width=True, hide_index=True)
+
+st.caption("Catatan: Nilai provinsi dihitung dari rata-rata sederhana prediksi seluruh kabupaten/kota pada setiap tahun."
