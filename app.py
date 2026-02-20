@@ -523,4 +523,3 @@ st.markdown(
 st.dataframe(prov_table, use_container_width=True, hide_index=True)
 
 st.caption("Catatan: Nilai provinsi dihitung dari rata-rata sederhana prediksi seluruh kabupaten/kota pada setiap tahun.")
-
