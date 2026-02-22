@@ -14,28 +14,29 @@ from sklearn.inspection import permutation_importance
 # =========================
 # WAJIB: CLASS KUSTOM (HARUS ADA SEBELUM joblib.load)
 # =========================
-class Winsorizer(BaseEstimator, TransformerMixin):
-    def __init__(self, lower_q=0.01, upper_q=0.99):
-        self.lower_q = lower_q
-        self.upper_q = upper_q
+class WinsorizerIQR(BaseEstimator, TransformerMixin):
+    def __init__(self, factor=1.5):
+        self.factor = factor
 
     def fit(self, X, y=None):
         X = np.asarray(X, dtype=float)
-        self.low_ = np.quantile(X, self.lower_q, axis=0)
-        self.up_  = np.quantile(X, self.upper_q, axis=0)
+        Q1 = np.quantile(X, 0.25, axis=0)
+        Q3 = np.quantile(X, 0.75, axis=0)
+        IQR = Q3 - Q1
+        self.low_ = Q1 - self.factor * IQR
+        self.up_  = Q3 + self.factor * IQR
         return self
 
     def transform(self, X):
         X = np.asarray(X, dtype=float)
         return np.clip(X, self.low_, self.up_)
 
-
 # =========================
 # KONFIGURASI FILE
 # =========================
 DATA_PATH  = "dataprediksi.xlsx"
-MODEL_PATH = "model_svr_pipeline_outlier_lag.pkl"
-PRED_PATH  = "Prediksi_Tingkat_Kemiskinan_2025_2030.xlsx"
+MODEL_PATH = "model_svr.pkl"
+PRED_PATH  = "Prediksi_Tingkat_Kemiskinan.xlsx"
 
 FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH", "P0_lag1"]
 BASE_FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH"]
@@ -242,10 +243,12 @@ def add_lag_feature(df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna(subset=["P0_lag1"]).copy()
     return df
 
-
 def evaluate_model_time_based(df_with_lag: pd.DataFrame, model) -> dict:
-    # Split sama seperti notebook
-    train = df_with_lag[df_with_lag["Tahun"].between(2016, 2022)].copy()
+    # Samakan dengan notebook: data sudah ada P0_lag1 & sudah drop NaN
+    df_with_lag = df_with_lag.sort_values(["Kabupaten/Kota", "Tahun"]).reset_index(drop=True)
+
+    # Split sama persis seperti notebook kamu
+    train = df_with_lag[df_with_lag["Tahun"].between(2015, 2022)].copy()
     test  = df_with_lag[df_with_lag["Tahun"].between(2023, 2024)].copy()
 
     if test.empty:
@@ -254,17 +257,14 @@ def evaluate_model_time_based(df_with_lag: pd.DataFrame, model) -> dict:
     X_test = test[FEATURES]
     y_test = test["P0"].astype(float)
 
+    # Prediksi pakai pipeline model (imputer+winsor+scaler sudah di dalam model)
     y_pred = model.predict(X_test)
 
     mae = mean_absolute_error(y_test, y_pred)
     rmse = float(np.sqrt(mean_squared_error(y_test, y_pred)))
     r2 = r2_score(y_test, y_pred)
 
-    return {
-        "MAE": float(mae),
-        "RMSE": float(rmse),
-        "R2": float(r2)
-    }
+    return {"MAE": float(mae), "RMSE": float(rmse), "R2": float(r2)}
 
 @st.cache_data(show_spinner=False)
 def compute_permutation_importance_per_kab(df_with_lag: pd.DataFrame, kab: str, _model) -> pd.DataFrame:
