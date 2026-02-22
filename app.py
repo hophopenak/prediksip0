@@ -243,20 +243,28 @@ def add_lag_feature(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def evaluate_on_2024(df_with_lag: pd.DataFrame, model) -> dict:
-    test = df_with_lag[df_with_lag["Tahun"] == 2024].copy()
+def evaluate_model_time_based(df_with_lag: pd.DataFrame, model) -> dict:
+    # Split sama seperti notebook
+    train = df_with_lag[df_with_lag["Tahun"].between(2016, 2022)].copy()
+    test  = df_with_lag[df_with_lag["Tahun"].between(2023, 2024)].copy()
+
     if test.empty:
         return {"MAE": np.nan, "RMSE": np.nan, "R2": np.nan}
 
     X_test = test[FEATURES]
     y_test = test["P0"].astype(float)
+
     y_pred = model.predict(X_test)
 
     mae = mean_absolute_error(y_test, y_pred)
     rmse = float(np.sqrt(mean_squared_error(y_test, y_pred)))
     r2 = r2_score(y_test, y_pred)
-    return {"MAE": float(mae), "RMSE": float(rmse), "R2": float(r2)}
 
+    return {
+        "MAE": float(mae),
+        "RMSE": float(rmse),
+        "R2": float(r2)
+    }
 
 @st.cache_data(show_spinner=False)
 def compute_permutation_importance_per_kab(df_with_lag: pd.DataFrame, kab: str, _model) -> pd.DataFrame:
@@ -333,7 +341,7 @@ df_raw = load_data(DATA_PATH)
 model = load_model(MODEL_PATH)
 
 df_lag = add_lag_feature(df_raw)
-metrics = evaluate_on_2024(df_lag, model)
+metrics = evaluate_model_time_based(df_lag, model)
 future_df = load_or_build_future(df_raw, model, PRED_PATH)
 
 with st.sidebar:
