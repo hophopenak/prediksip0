@@ -35,7 +35,7 @@ class Winsorizer(BaseEstimator, TransformerMixin):
 # =========================
 DATA_PATH  = "dataprediksi.xlsx"
 MODEL_PATH = "model_svr_pipeline_outlier_lag.pkl"
-PRED_PATH  = "Prediksi_P0_2025_2030_SVR_Outlier_Lag.xlsx"
+PRED_PATH  = "Prediksi_Tingkat_Kemiskinan_2025_2030.xlsx"
 
 FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH", "P0_lag1"]
 BASE_FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH"]
@@ -483,17 +483,17 @@ st.markdown(
 prov_df = (
     future_df.groupby("Tahun", as_index=False)["Prediksi_P0"]
             .mean()
-            .rename(columns={"Prediksi_P0": "Prediksi_P0_Prov"})
+            .rename(columns={"Prediksi_P0": "Prediksi_Tingkat_Kemiskinan_Prov"})
 )
 
 prov_df["Tahun"] = prov_df["Tahun"].astype(int)
-prov_df["Prediksi_P0_Prov"] = prov_df["Prediksi_P0_Prov"].astype(float)
+prov_df["Prediksi_Tingkat_Kemiskinan_Prov"] = prov_df["Prediksi_Tingkat_Kemiskinan_Prov"].astype(float)
 
 # 2) Grafik tren provinsi
 fig_prov = px.line(
     prov_df,
     x="Tahun",
-    y="Prediksi_P0_Prov",
+    y="Prediksi_Tingkat_Kemiskinan_Prov",
     markers=True
 )
 
@@ -513,7 +513,7 @@ st.plotly_chart(fig_prov, use_container_width=True)
 
 # 3) Tampilkan tabel ringkas (dibungkus card agar rapi)
 prov_table = prov_df.copy()
-prov_table["Prediksi_P0_Prov"] = prov_table["Prediksi_P0_Prov"].round(4)
+prov_table["Prediksi_Tingkat_Kemiskinan_Prov"] = prov_table["Prediksi_Tingkat_Kemiskinan_Prov"].round(4)
 
 st.markdown(
     "<div class='card' style='text-align:center;'><b>📋 Tabel Prediksi Tingkat Kemiskinan Provinsi Sumatera Barat</b></div>",
