@@ -49,20 +49,32 @@ def inject_css():
         """
         <style>
         /* =========================
-           HIDE DEFAULT STREAMLIT UI
+           JANGAN HILANGKAN HEADER!
+           tombol panah sidebar ada di header Streamlit
         ========================= */
-        header[data-testid="stHeader"] { display: none; }
+        header[data-testid="stHeader"]{
+            background: transparent !important;
+            height: 3rem !important;
+        }
+
+        /* hide menu & footer & toolbar */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         div[data-testid="stToolbar"] { display: none; }
 
-        /* =========================
-           PENTING:
-           Jangan sembunyikan tombol panah collapse sidebar
-           (jadi baris ini DIHAPUS dari versi sebelumnya)
-           - button[data-testid="stSidebarCollapseButton"] ...
-           - div[data-testid="collapsedControl"] ...
-        ========================= */
+        /* Paksa tombol panah sidebar muncul */
+        button[data-testid="stSidebarCollapseButton"]{
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        div[data-testid="collapsedControl"]{
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
 
         /* =========================
            PINK SOFT + HIGH READABILITY
@@ -90,9 +102,6 @@ def inject_css():
 
         .block-container{ padding-top: 0rem !important; }
 
-        /* =========================
-           GLOBAL FONT
-        ========================= */
         html, body, [class*="css"]{
             color: var(--text) !important;
             font-size: 16px !important;
@@ -106,9 +115,6 @@ def inject_css():
 
         .title-center{ text-align: center; }
 
-        /* =========================
-           CARD
-        ========================= */
         .card{
             background: var(--card);
             border-radius: 16px;
@@ -124,9 +130,7 @@ def inject_css():
             font-size: 16px !important;
         }
 
-        /* =========================
-           SIDEBAR
-        ========================= */
+        /* SIDEBAR */
         section[data-testid="stSidebar"]{
             background: var(--sidebar) !important;
             border-right: 1px solid rgba(236, 149, 196, 0.35);
@@ -149,9 +153,7 @@ def inject_css():
             border: 1px solid rgba(236, 149, 196, 0.45) !important;
         }
 
-        /* =========================
-           METRIC CARD
-        ========================= */
+        /* METRIC CARD */
         .metric-card{ text-align: center; }
         .metric-title{
             font-size: 13px !important;
@@ -334,6 +336,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"  # sidebar default terbuka (panah tetap ada)
 )
+
 inject_css()
 
 if not os.path.exists(DATA_PATH):
