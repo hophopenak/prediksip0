@@ -49,20 +49,33 @@ def inject_css():
         """
         <style>
         /* =========================
-           HIDE DEFAULT STREAMLIT UI
+           JANGAN HILANGKAN HEADER!
+           Tombol panah sidebar ada di header.
+           Jadi kita bikin header tipis & transparan saja.
         ========================= */
-        header[data-testid="stHeader"] { display: none; }
+        header[data-testid="stHeader"]{
+            background: transparent !important;
+            height: 3.0rem !important;
+        }
+
+        /* Hide menu & footer */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
+
+        /* Toolbar boleh disembunyikan, tapi jangan tombol collapse sidebar */
         div[data-testid="stToolbar"] { display: none; }
 
-        /* =========================
-           PENTING:
-           Jangan sembunyikan tombol panah collapse sidebar
-           (jadi baris ini DIHAPUS dari versi sebelumnya)
-           - button[data-testid="stSidebarCollapseButton"] ...
-           - div[data-testid="collapsedControl"] ...
-        ========================= */
+        /* Pastikan tombol panah collapse sidebar TETAP tampil */
+        button[data-testid="stSidebarCollapseButton"]{
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        div[data-testid="collapsedControl"]{
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
 
         /* =========================
            PINK SOFT + HIGH READABILITY
@@ -90,9 +103,6 @@ def inject_css():
 
         .block-container{ padding-top: 0rem !important; }
 
-        /* =========================
-           GLOBAL FONT
-        ========================= */
         html, body, [class*="css"]{
             color: var(--text) !important;
             font-size: 16px !important;
@@ -106,9 +116,6 @@ def inject_css():
 
         .title-center{ text-align: center; }
 
-        /* =========================
-           CARD
-        ========================= */
         .card{
             background: var(--card);
             border-radius: 16px;
@@ -124,9 +131,6 @@ def inject_css():
             font-size: 16px !important;
         }
 
-        /* =========================
-           SIDEBAR
-        ========================= */
         section[data-testid="stSidebar"]{
             background: var(--sidebar) !important;
             border-right: 1px solid rgba(236, 149, 196, 0.35);
@@ -149,9 +153,6 @@ def inject_css():
             border: 1px solid rgba(236, 149, 196, 0.45) !important;
         }
 
-        /* =========================
-           METRIC CARD
-        ========================= */
         .metric-card{ text-align: center; }
         .metric-title{
             font-size: 13px !important;
@@ -194,7 +195,6 @@ def inject_css():
             color: var(--text) !important;
         }
 
-        /* PLOTLY FONT */
         .js-plotly-plot text{
             font-size: 14px !important;
             font-weight: 700 !important;
@@ -298,9 +298,6 @@ def load_or_build_future(df_raw: pd.DataFrame, _model, pred_path: str) -> pd.Dat
     return build_future_predictions_if_missing(df_raw, _model)
 
 
-# =========================
-# PREDIKSI MANUAL
-# =========================
 def get_last_p0_for_kab(df_raw: pd.DataFrame, kab: str) -> float:
     sub = df_raw[df_raw["Kabupaten/Kota"] == kab].sort_values("Tahun")
     if sub.empty:
@@ -327,12 +324,12 @@ def predict_manual_input(model,
 
 
 # =========================
-# APP
+# APP (WAJIB set_page_config sebelum st.* lainnya)
 # =========================
 st.set_page_config(
     page_title="Dashboard Prediksi Tingkat Kemiskinan Sumatera Barat",
     layout="wide",
-    initial_sidebar_state="expanded"  # sidebar default terbuka (panah tetap ada)
+    initial_sidebar_state="expanded"
 )
 inject_css()
 
@@ -356,7 +353,6 @@ if "manual_pred" not in st.session_state:
 with st.sidebar:
     st.markdown("""
 ### 📌 Informasi
-
 - 📅 **Prediksi Tingkat Kemiskinan Tahun 2025–2030**
 - 📈 **Tren per Kabupaten/Kota**
 - 🧠 **Variabel yang Paling Mempengaruhi**
