@@ -57,14 +57,6 @@ def inject_css():
         div[data-testid="stToolbar"] { display: none; }
 
         /* =========================
-           PENTING:
-           Jangan sembunyikan tombol panah collapse sidebar
-           (jadi baris ini DIHAPUS dari versi sebelumnya)
-           - button[data-testid="stSidebarCollapseButton"] ...
-           - div[data-testid="collapsedControl"] ...
-        ========================= */
-
-        /* =========================
            PINK SOFT + HIGH READABILITY
         ========================= */
         :root{
@@ -607,3 +599,4 @@ st.markdown(
 st.dataframe(prov_table, use_container_width=True, hide_index=True)
 
 st.caption("Catatan: Nilai provinsi dihitung dari rata-rata sederhana prediksi seluruh kabupaten/kota pada setiap tahun.")
+
