@@ -48,32 +48,62 @@ def inject_css():
     st.markdown(
         """
         <style>
-        /* =========================
-           JANGAN HILANGKAN HEADER!
-           tombol panah sidebar ada di header Streamlit
-        ========================= */
+        /* =========================================
+           PENTING: JANGAN SEMBUNYIKAN HEADER
+           Tombol collapse/expand sidebar ada di header
+        ========================================= */
         header[data-testid="stHeader"]{
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: 3.25rem !important;
             background: transparent !important;
-            height: 3rem !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 9999 !important;
         }
 
-        /* hide menu & footer & toolbar */
+        /* Hide menu/footer/toolbar (boleh) */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         div[data-testid="stToolbar"] { display: none; }
 
-        /* Paksa tombol panah sidebar muncul */
+        /* =========================================
+           PAKSA TOMBOL COLLAPSE/EXPAND SIDEBAR MUNCUL
+           (fallback selector untuk Streamlit 1.45.x)
+        ========================================= */
+
+        /* tombol saat sidebar terbuka */
         button[data-testid="stSidebarCollapseButton"]{
             display: flex !important;
             visibility: visible !important;
             opacity: 1 !important;
             pointer-events: auto !important;
+            z-index: 10000 !important;
         }
-        div[data-testid="collapsedControl"]{
-            display: block !important;
+
+        /* kontrol saat sidebar tertutup */
+        div[data-testid="collapsedControl"],
+        div[data-testid="stSidebarCollapsedControl"]{
+            display: flex !important;
             visibility: visible !important;
             opacity: 1 !important;
             pointer-events: auto !important;
+            z-index: 10000 !important;
+
+            /* pastikan tidak ketutup layout */
+            position: fixed !important;
+            top: 0.65rem !important;
+            left: 0.65rem !important;
+        }
+
+        div[data-testid="collapsedControl"] button,
+        div[data-testid="stSidebarCollapsedControl"] button{
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            z-index: 10001 !important;
         }
 
         /* =========================
@@ -130,7 +160,6 @@ def inject_css():
             font-size: 16px !important;
         }
 
-        /* SIDEBAR */
         section[data-testid="stSidebar"]{
             background: var(--sidebar) !important;
             border-right: 1px solid rgba(236, 149, 196, 0.35);
@@ -153,7 +182,6 @@ def inject_css():
             border: 1px solid rgba(236, 149, 196, 0.45) !important;
         }
 
-        /* METRIC CARD */
         .metric-card{ text-align: center; }
         .metric-title{
             font-size: 13px !important;
@@ -334,9 +362,8 @@ def predict_manual_input(model,
 st.set_page_config(
     page_title="Dashboard Prediksi Tingkat Kemiskinan Sumatera Barat",
     layout="wide",
-    initial_sidebar_state="expanded"  # sidebar default terbuka (panah tetap ada)
+    initial_sidebar_state="expanded"
 )
-
 inject_css()
 
 if not os.path.exists(DATA_PATH):
