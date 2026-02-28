@@ -24,7 +24,7 @@ class WinsorizerIQR(BaseEstimator, TransformerMixin):
         Q3 = np.quantile(X, 0.75, axis=0)
         IQR = Q3 - Q1
         self.low_ = Q1 - self.factor * IQR
-        self.up_  = Q3 + self.factor * IQR
+        self.up_ = Q3 + self.factor * IQR
         return self
 
     def transform(self, X):
@@ -35,76 +35,39 @@ class WinsorizerIQR(BaseEstimator, TransformerMixin):
 # =========================
 # KONFIGURASI FILE
 # =========================
-DATA_PATH  = "dataprediksi.xlsx"
+DATA_PATH = "dataprediksi.xlsx"
 MODEL_PATH = "model_svr.pkl"
-PRED_PATH  = "Prediksi_Tingkat_Kemiskinan.xlsx"
+PRED_PATH = "Prediksi_Tingkat_Kemiskinan.xlsx"
 
 FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH", "P0_lag1"]
 BASE_FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH"]
 FUTURE_YEARS = [2025, 2026, 2027, 2028, 2029, 2030]
 
 
+# =========================
+# CSS (FIX: JANGAN sembunyikan header/toolbar)
+# Tombol panah sidebar (collapse/expand) ada di area header/toolbar Streamlit.
+# Kalau header/toolbar di-hide -> tombol panah ikut hilang.
+# =========================
 def inject_css():
     st.markdown(
         """
         <style>
-        /* =========================================
-           PENTING: JANGAN SEMBUNYIKAN HEADER
-           Tombol collapse/expand sidebar ada di header
-        ========================================= */
+        /* =========================
+           JANGAN HILANGKAN HEADER / TOOLBAR
+           (toggle sidebar ada di area ini)
+        ========================= */
         header[data-testid="stHeader"]{
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            height: 3.25rem !important;
             background: transparent !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 9999 !important;
         }
+        /* JANGAN ADA ini:
+           header[data-testid="stHeader"] { display:none; }
+           div[data-testid="stToolbar"] { display:none; }
+        */
 
-        /* Hide menu/footer/toolbar (boleh) */
+        /* Sembunyikan menu & footer saja (AMAN) */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
-        div[data-testid="stToolbar"] { display: none; }
-
-        /* =========================================
-           PAKSA TOMBOL COLLAPSE/EXPAND SIDEBAR MUNCUL
-           (fallback selector untuk Streamlit 1.45.x)
-        ========================================= */
-
-        /* tombol saat sidebar terbuka */
-        button[data-testid="stSidebarCollapseButton"]{
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            z-index: 10000 !important;
-        }
-
-        /* kontrol saat sidebar tertutup */
-        div[data-testid="collapsedControl"],
-        div[data-testid="stSidebarCollapsedControl"]{
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            z-index: 10000 !important;
-
-            /* pastikan tidak ketutup layout */
-            position: fixed !important;
-            top: 0.65rem !important;
-            left: 0.65rem !important;
-        }
-
-        div[data-testid="collapsedControl"] button,
-        div[data-testid="stSidebarCollapsedControl"] button{
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            z-index: 10001 !important;
-        }
 
         /* =========================
            PINK SOFT + HIGH READABILITY
@@ -160,6 +123,9 @@ def inject_css():
             font-size: 16px !important;
         }
 
+        /* =========================
+           SIDEBAR
+        ========================= */
         section[data-testid="stSidebar"]{
             background: var(--sidebar) !important;
             border-right: 1px solid rgba(236, 149, 196, 0.35);
@@ -182,6 +148,9 @@ def inject_css():
             border: 1px solid rgba(236, 149, 196, 0.45) !important;
         }
 
+        /* =========================
+           METRIC CARD
+        ========================= */
         .metric-card{ text-align: center; }
         .metric-title{
             font-size: 13px !important;
@@ -232,7 +201,7 @@ def inject_css():
         }
         </style>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
@@ -257,7 +226,6 @@ def add_lag_feature(df: pd.DataFrame) -> pd.DataFrame:
 
 def evaluate_model_time_based(df_with_lag: pd.DataFrame, model) -> dict:
     df_with_lag = df_with_lag.sort_values(["Kabupaten/Kota", "Tahun"]).reset_index(drop=True)
-
     test = df_with_lag[df_with_lag["Tahun"].between(2023, 2024)].copy()
     if test.empty:
         return {"MAE": np.nan, "RMSE": np.nan, "R2": np.nan}
@@ -338,10 +306,12 @@ def get_last_p0_for_kab(df_raw: pd.DataFrame, kab: str) -> float:
     return float(sub.iloc[-1]["P0"])
 
 
-def predict_manual_input(model,
-                         rls: float, tpt: float, ppk: float, aml: float,
-                         uhh: float, tpak: float, amh: float,
-                         p0_lag1: float) -> float:
+def predict_manual_input(
+    model,
+    rls: float, tpt: float, ppk: float, aml: float,
+    uhh: float, tpak: float, amh: float,
+    p0_lag1: float
+) -> float:
     row = {
         "RLS": rls,
         "TPT": tpt,
@@ -386,7 +356,6 @@ if "manual_pred" not in st.session_state:
 with st.sidebar:
     st.markdown("""
 ### 📌 Informasi
-
 - 📅 **Prediksi Tingkat Kemiskinan Tahun 2025–2030**
 - 📈 **Tren per Kabupaten/Kota**
 - 🧠 **Variabel yang Paling Mempengaruhi**
@@ -607,8 +576,8 @@ st.markdown(
 
 prov_df = (
     future_df.groupby("Tahun", as_index=False)["Prediksi_P0"]
-            .mean()
-            .rename(columns={"Prediksi_P0": "Prediksi_Tingkat_Kemiskinan_Prov"})
+    .mean()
+    .rename(columns={"Prediksi_P0": "Prediksi_Tingkat_Kemiskinan_Prov"})
 )
 
 prov_df["Tahun"] = prov_df["Tahun"].astype(int)
