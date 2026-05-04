@@ -24,7 +24,7 @@ class WinsorizerIQR(BaseEstimator, TransformerMixin):
         Q3 = np.quantile(X, 0.75, axis=0)
         IQR = Q3 - Q1
         self.low_ = Q1 - self.factor * IQR
-        self.up_ = Q3 + self.factor * IQR
+        self.up_  = Q3 + self.factor * IQR
         return self
 
     def transform(self, X):
@@ -35,39 +35,46 @@ class WinsorizerIQR(BaseEstimator, TransformerMixin):
 # =========================
 # KONFIGURASI FILE
 # =========================
-DATA_PATH = "dataprediksi.xlsx"
+DATA_PATH  = "dataprediksi.xlsx"
 MODEL_PATH = "model_svr.pkl"
-PRED_PATH = "Prediksi_Tingkat_Kemiskinan.xlsx"
+PRED_PATH  = "Prediksi_Tingkat_Kemiskinan.xlsx"
 
 FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH", "P0_lag1"]
 BASE_FEATURES = ["RLS", "TPT", "PPK", "AML", "UHH", "TPAK", "AMH"]
 FUTURE_YEARS = [2025, 2026, 2027, 2028, 2029, 2030]
 
 
-# =========================
-# CSS (FIX: JANGAN sembunyikan header/toolbar)
-# Tombol panah sidebar (collapse/expand) ada di area header/toolbar Streamlit.
-# Kalau header/toolbar di-hide -> tombol panah ikut hilang.
-# =========================
 def inject_css():
     st.markdown(
         """
         <style>
         /* =========================
-           JANGAN HILANGKAN HEADER / TOOLBAR
-           (toggle sidebar ada di area ini)
+           JANGAN HILANGKAN HEADER!
+           tombol panah sidebar ada di header Streamlit
         ========================= */
         header[data-testid="stHeader"]{
             background: transparent !important;
+            height: 3rem !important;
         }
-        /* JANGAN ADA ini:
-           header[data-testid="stHeader"] { display:none; }
-           div[data-testid="stToolbar"] { display:none; }
-        */
 
-        /* Sembunyikan menu & footer saja (AMAN) */
+        /* hide menu & footer & toolbar */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
+        div[data-testid="stToolbar"] { display: none; }
+
+        /* Paksa tombol panah sidebar muncul */
+        button[data-testid="stSidebarCollapseButton"]{
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        div[data-testid="collapsedControl"]{
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
 
         /* =========================
            PINK SOFT + HIGH READABILITY
@@ -123,9 +130,7 @@ def inject_css():
             font-size: 16px !important;
         }
 
-        /* =========================
-           SIDEBAR
-        ========================= */
+        /* SIDEBAR */
         section[data-testid="stSidebar"]{
             background: var(--sidebar) !important;
             border-right: 1px solid rgba(236, 149, 196, 0.35);
@@ -148,9 +153,7 @@ def inject_css():
             border: 1px solid rgba(236, 149, 196, 0.45) !important;
         }
 
-        /* =========================
-           METRIC CARD
-        ========================= */
+        /* METRIC CARD */
         .metric-card{ text-align: center; }
         .metric-title{
             font-size: 13px !important;
@@ -201,7 +204,7 @@ def inject_css():
         }
         </style>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
 
 
@@ -226,6 +229,7 @@ def add_lag_feature(df: pd.DataFrame) -> pd.DataFrame:
 
 def evaluate_model_time_based(df_with_lag: pd.DataFrame, model) -> dict:
     df_with_lag = df_with_lag.sort_values(["Kabupaten/Kota", "Tahun"]).reset_index(drop=True)
+
     test = df_with_lag[df_with_lag["Tahun"].between(2023, 2024)].copy()
     if test.empty:
         return {"MAE": np.nan, "RMSE": np.nan, "R2": np.nan}
@@ -306,12 +310,10 @@ def get_last_p0_for_kab(df_raw: pd.DataFrame, kab: str) -> float:
     return float(sub.iloc[-1]["P0"])
 
 
-def predict_manual_input(
-    model,
-    rls: float, tpt: float, ppk: float, aml: float,
-    uhh: float, tpak: float, amh: float,
-    p0_lag1: float
-) -> float:
+def predict_manual_input(model,
+                         rls: float, tpt: float, ppk: float, aml: float,
+                         uhh: float, tpak: float, amh: float,
+                         p0_lag1: float) -> float:
     row = {
         "RLS": rls,
         "TPT": tpt,
@@ -330,10 +332,11 @@ def predict_manual_input(
 # APP
 # =========================
 st.set_page_config(
-    page_title="Prediksi Tingkat Kemiskinan Sumatera Barat",
+    page_title="Dashboard Prediksi Tingkat Kemiskinan Sumatera Barat",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded"  # sidebar default terbuka (panah tetap ada)
 )
+
 inject_css()
 
 if not os.path.exists(DATA_PATH):
@@ -356,6 +359,7 @@ if "manual_pred" not in st.session_state:
 with st.sidebar:
     st.markdown("""
 ### 📌 Informasi
+
 - 📅 **Prediksi Tingkat Kemiskinan Tahun 2025–2030**
 - 📈 **Tren per Kabupaten/Kota**
 - 🧠 **Variabel yang Paling Mempengaruhi**
@@ -394,7 +398,7 @@ with st.sidebar:
 st.markdown(
     "<div class='card title-center'>"
     "<div style='font-size:26px;font-weight:900;color:#6a00ff;'>"
-    "📊 Dashboard Prediksi Tingkat Kemiskinan Provinsi Sumatera Barat</div></div>",
+    "📊 Prediksi Tingkat Kemiskinan Provinsi Sumatera Barat</div></div>",
     unsafe_allow_html=True
 )
 st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
@@ -576,8 +580,8 @@ st.markdown(
 
 prov_df = (
     future_df.groupby("Tahun", as_index=False)["Prediksi_P0"]
-    .mean()
-    .rename(columns={"Prediksi_P0": "Prediksi_Tingkat_Kemiskinan_Prov"})
+            .mean()
+            .rename(columns={"Prediksi_P0": "Prediksi_Tingkat_Kemiskinan_Prov"})
 )
 
 prov_df["Tahun"] = prov_df["Tahun"].astype(int)
