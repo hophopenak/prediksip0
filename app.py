@@ -330,7 +330,7 @@ def predict_manual_input(
 # APP
 # =========================
 st.set_page_config(
-    page_title="Dashboard Prediksi Tingkat Kemiskinan Sumatera Barat",
+    page_title="Prediksi Tingkat Kemiskinan Sumatera Barat",
     layout="wide",
     initial_sidebar_state="expanded"
 )
